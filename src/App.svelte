@@ -102,7 +102,7 @@
         <ul>
           {#each cleaned as w, i}
             <li on:click={() => remove(w)}>
-              <span>{w.word}</span>
+              <span>{w.cleaned}</span>
             </li>
           {/each}
         </ul>
