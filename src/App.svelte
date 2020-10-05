@@ -41,31 +41,28 @@
     words[index] = e;
   }
 
-  function remove(e, index) {
-    // TODO this doesnt quite work.
+  function remove(e) {
     e.interest = 0;
+    words[e.originalIndex] = e;
   }
 
-  $: words = input.split(" ").map(e => {
-    return { word: e, interest: 0 };
+  $: words = input.split(" ").map((e, index) => {
+    return { word: e, interest: 0, originalIndex: index, cleaned: "" };
   });
 
   $: filtered = words.filter(e => e.interest == 1);
 
   $: cleaned = filtered.map(e => {
-    const c = JSON.parse(JSON.stringify(e));
-    var punctuationless = c.word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+    var punctuationless = e.word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
     var finalString = punctuationless.replace(/\s{2,}/g, " ");
-    c.word = finalString;
-    return c;
+    e.cleaned = finalString;
+    return e;
   });
 </script>
 
 <style>
   @import "./all.css";
 </style>
-
-<button class="br3" on:click={reset}>Reset</button>
 
 <div class="flex flex-column">
   {#if !dataAdded}
@@ -82,10 +79,13 @@
 
   {#if dataAdded}
     <div class="outline w-50 pa3 mr2">
+
+      <button class="br3" on:click={reset}>Reset</button>
+
       <h1>Select Text</h1>
       <p>
         {#each words as w, i}
-          <span class="pa0" on:click={() => add(w, i)}>
+          <span class="pa0" on:click={() => toggle(w, i)}>
             {#if w.interest == 0}
               {w.word}
             {:else}
@@ -96,15 +96,17 @@
       </p>
     </div>
 
-    <div class="outline w-50 pa3 mr2">
-      <h1>View Words</h1>
-      <ul>
-        {#each cleaned as w, i}
-          <li on:click={() => remove(w, i)}>
-            <span>{w.word}</span>
-          </li>
-        {/each}
-      </ul>
-    </div>
+    {#if cleaned.length > 0}
+      <div class="outline w-50 pa3 mr2">
+        <h1>View Words</h1>
+        <ul>
+          {#each cleaned as w, i}
+            <li on:click={() => remove(w)}>
+              <span>{w.word}</span>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
   {/if}
 </div>
